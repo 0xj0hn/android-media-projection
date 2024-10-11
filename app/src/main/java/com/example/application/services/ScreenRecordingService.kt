@@ -1,6 +1,8 @@
 package com.example.application.services
 
 import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.media.projection.MediaProjection
@@ -32,11 +34,21 @@ class ScreenRecordingService : Service() {
     }
 
     private fun createNotification(): Notification {
+        createNotificationChannel()
         return NotificationCompat.Builder(this, "notif")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle("Capture")
-            .setContentText("Capturing...")
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setShowWhen(false)
+            .setContentText("‌")
             .build()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val notificationChannel = NotificationChannel("notif", "Capture screen", NotificationManager.IMPORTANCE_LOW)
+            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(notificationChannel)
+        }
     }
 
     private fun setupMediaRecorder() {

